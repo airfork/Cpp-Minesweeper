@@ -7,190 +7,187 @@
 
 #include "Position.h"
 
-// keep functions internal to file
-namespace {
-    // typedef to avoid repeating lengthy type
-    typedef const std::array<std::array<Point *, 9>, 9> &Field;
+// typedef to avoid repeating lengthy type
+typedef const std::array<std::array<Point *, 9>, 9> &Field;
 
-    // helper function for getAdjacentPoints
-    // handles corner positions
-    std::vector<Point *> getCornerAdjacentPoints(Field field, Position::Position position) {
-        // holds the adjacent points
-        std::vector<Point *> points{};
+// helper function for getAdjacentPoints
+// handles corner positions
+std::vector<Point *> getCornerAdjacentPoints(Field field, Position::Position position) {
+    // holds the adjacent points
+    std::vector<Point *> points{};
 
-        // adjacent points for top left are fixed
-        if (position == Position::TOP_LEFT) {
-            // right
-            points.push_back(field[0][1]);
-            // right below
-            points.push_back(field[1][1]);
-            // direct below
-            points.push_back(field[1][0]);
-        }
-
-        // adjacent points for top right are fixed
-        else if (position == Position::TOP_RIGHT) {
-            // left
-            points.push_back(field[0][7]);
-            // left below
-            points.push_back(field[1][7]);
-            // direct below
-            points.push_back(field[1][8]);
-        }
-
-        // adjacent points for bottom left are fixed
-        else if (position == Position::BOTTOM_LEFT) {
-            // above
-            points.push_back(field[7][0]);
-            // right above
-            points.push_back(field[7][1]);
-            // right
-            points.push_back(field[8][1]);
-        }
-
-        // adjacent points for bottom right are fixed
-        else if (position == Position::BOTTOM_RIGHT) {
-            // above
-            points.push_back(field[7][8]);
-            // left above
-            points.push_back(field[7][7]);
-            // left
-            points.push_back(field[8][7]);
-        }
-
-        return points;
+    // adjacent points for top left are fixed
+    if (position == Position::TOP_LEFT) {
+        // right
+        points.push_back(field[0][1]);
+        // right below
+        points.push_back(field[1][1]);
+        // direct below
+        points.push_back(field[1][0]);
     }
 
-    // helper function for getAdjacentPoints
-    // handles positions on the edge of the field
-    std::vector<Point *> getEdgeAdjacentPoints(Field field, Position::Position position, const Point *point) {
-        // holds the adjacent points
-        std::vector<Point *> points{};
-
-        // hold x and y of point
-        int x{point->getX()};
-        int y{point->getY()};
-
-        // add direct right and left of point
-        // making a lambda for ease of use
-        auto directLeftRight = [&points, field, x, y]() mutable {
-            // left
-            points.push_back(field[y][x - 1]);
-            // right
-            points.push_back(field[y][x + 1]);
-        };
-
-        // add above or below of point
-        // making a lambda for ease of use
-        auto rowAboveOrBelow = [&points, field, x, y](bool above = false) mutable {
-            // set y based on if we're adding above or below point
-            int targetY{above ? y - 1 : y + 1};
-
-            // above/below left
-            points.push_back(field[targetY][x - 1]);
-
-            // direct above/below
-            points.push_back(field[targetY][x]);
-
-            // above/below right
-            points.push_back(field[targetY][x + 1]);
-        };
-
-        // add directly above and below mine
-        // making lambda for ease of use
-        auto directAboveBelow = [&points, field, x, y]() mutable {
-            // directly above
-            points.push_back(field[y - 1][x]);
-
-            // directly below
-            points.push_back(field[y + 1][x]);
-        };
-
-        // add column to left/right of point
-        // making lambda for ease of use
-        auto colRightOrLeft = [&points, field, x, y](bool left = false) mutable {
-            // set x based on if we're adding to the left or right of point
-            int targetX{left ? x - 1 : x + 1};
-
-            // above left/right
-            points.push_back(field[y - 1][targetX]);
-
-            // direct left/right
-            points.push_back(field[y][targetX]);
-
-            // below left/right
-            points.push_back(field[y + 1][targetX]);
-        };
-
-        // handle top
-        if (position == Position::TOP) {
-            // add direct left/right and below
-            directLeftRight();
-            rowAboveOrBelow();
-        }
-
-        // handle left
-        else if (position == Position::LEFT) {
-            // add direct above/below and col to the right
-            directAboveBelow();
-            colRightOrLeft();
-        }
-
-        // handle right
-        else if (position == Position::RIGHT) {
-            // add direct above/below and col to the left
-            directAboveBelow();
-            colRightOrLeft(true);
-        }
-
-        // handle bottom
-        else if (position == Position::BOTTOM) {
-            // add direct left/right and row above
-            directLeftRight();
-            rowAboveOrBelow(true);
-        }
-
-        return points;
+    // adjacent points for top right are fixed
+    else if (position == Position::TOP_RIGHT) {
+        // left
+        points.push_back(field[0][7]);
+        // left below
+        points.push_back(field[1][7]);
+        // direct below
+        points.push_back(field[1][8]);
     }
 
-    // helper function for getAdjacentPoints
-    // handles positions in the middle of the field
-    std::vector<Point *> getMiddleAdjacentPoints(Field field, const Point *point) {
-        // holds the adjacent points
-        std::vector<Point *> points{};
+    // adjacent points for bottom left are fixed
+    else if (position == Position::BOTTOM_LEFT) {
+        // above
+        points.push_back(field[7][0]);
+        // right above
+        points.push_back(field[7][1]);
+        // right
+        points.push_back(field[8][1]);
+    }
 
-        // hold x and y of point
-        int x{point->getX()};
-        int y{point->getY()};
+    // adjacent points for bottom right are fixed
+    else if (position == Position::BOTTOM_RIGHT) {
+        // above
+        points.push_back(field[7][8]);
+        // left above
+        points.push_back(field[7][7]);
+        // left
+        points.push_back(field[8][7]);
+    }
 
-        // add above left
-        points.push_back(field[y - 1][x - 1]);
+    return points;
+}
 
-        // add direct above
+// helper function for getAdjacentPoints
+// handles positions on the edge of the field
+std::vector<Point *> getEdgeAdjacentPoints(Field field, Position::Position position, const Point *point) {
+    // holds the adjacent points
+    std::vector<Point *> points{};
+
+    // hold x and y of point
+    int x{point->getX()};
+    int y{point->getY()};
+
+    // add direct right and left of point
+    // making a lambda for ease of use
+    auto directLeftRight = [&points, field, x, y]() mutable {
+        // left
+        points.push_back(field[y][x - 1]);
+        // right
+        points.push_back(field[y][x + 1]);
+    };
+
+    // add above or below of point
+    // making a lambda for ease of use
+    auto rowAboveOrBelow = [&points, field, x, y](bool above = false) mutable {
+        // set y based on if we're adding above or below point
+        int targetY{above ? y - 1 : y + 1};
+
+        // above/below left
+        points.push_back(field[targetY][x - 1]);
+
+        // direct above/below
+        points.push_back(field[targetY][x]);
+
+        // above/below right
+        points.push_back(field[targetY][x + 1]);
+    };
+
+    // add directly above and below mine
+    // making lambda for ease of use
+    auto directAboveBelow = [&points, field, x, y]() mutable {
+        // directly above
         points.push_back(field[y - 1][x]);
 
-        // add above right
-        points.push_back(field[y - 1][x + 1]);
-
-        // add direct left
-        points.push_back(field[y][x - 1]);
-
-        // add direct right
-        points.push_back(field[y][x + 1]);
-
-        // add below left
-        points.push_back(field[y + 1][x - 1]);
-
-        // add direct below
+        // directly below
         points.push_back(field[y + 1][x]);
+    };
 
-        // add below right
-        points.push_back(field[y + 1][x + 1]);
+    // add column to left/right of point
+    // making lambda for ease of use
+    auto colRightOrLeft = [&points, field, x, y](bool left = false) mutable {
+        // set x based on if we're adding to the left or right of point
+        int targetX{left ? x - 1 : x + 1};
 
-        return points;
+        // above left/right
+        points.push_back(field[y - 1][targetX]);
+
+        // direct left/right
+        points.push_back(field[y][targetX]);
+
+        // below left/right
+        points.push_back(field[y + 1][targetX]);
+    };
+
+    // handle top
+    if (position == Position::TOP) {
+        // add direct left/right and below
+        directLeftRight();
+        rowAboveOrBelow();
     }
 
-}// namespace
+    // handle left
+    else if (position == Position::LEFT) {
+        // add direct above/below and col to the right
+        directAboveBelow();
+        colRightOrLeft();
+    }
+
+    // handle right
+    else if (position == Position::RIGHT) {
+        // add direct above/below and col to the left
+        directAboveBelow();
+        colRightOrLeft(true);
+    }
+
+    // handle bottom
+    else if (position == Position::BOTTOM) {
+        // add direct left/right and row above
+        directLeftRight();
+        rowAboveOrBelow(true);
+    }
+
+    return points;
+}
+
+// helper function for getAdjacentPoints
+// handles positions in the middle of the field
+std::vector<Point *> getMiddleAdjacentPoints(Field field, const Point *point) {
+    // holds the adjacent points
+    std::vector<Point *> points{};
+
+    // hold x and y of point
+    int x{point->getX()};
+    int y{point->getY()};
+
+    // add above left
+    points.push_back(field[y - 1][x - 1]);
+
+    // add direct above
+    points.push_back(field[y - 1][x]);
+
+    // add above right
+    points.push_back(field[y - 1][x + 1]);
+
+    // add direct left
+    points.push_back(field[y][x - 1]);
+
+    // add direct right
+    points.push_back(field[y][x + 1]);
+
+    // add below left
+    points.push_back(field[y + 1][x - 1]);
+
+    // add direct below
+    points.push_back(field[y + 1][x]);
+
+    // add below right
+    points.push_back(field[y + 1][x + 1]);
+
+    return points;
+}
+
 
 // From the point, return an enum representing its
 // position on the field
