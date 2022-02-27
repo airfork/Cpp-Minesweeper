@@ -9,6 +9,8 @@
 #define HW5_HELPERS_H
 
 #include <string>
+#include <vector>
+
 namespace Helpers {
     // taken from learncpp.com
     // This function clears out the std::cin buffer
