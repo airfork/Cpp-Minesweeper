@@ -19,6 +19,7 @@ GameManager::GameManager() : mineField{Helpers::getIntegerFromUser("How many min
 // run the game
 void GameManager::runGame() {
     while (!gameOver()) {
+        std::cout << mineField;
         // get command from user
         getCommand();
 
@@ -26,9 +27,10 @@ void GameManager::runGame() {
         // this will happen automatically if the user calls
         // free first instead of mine
         if (!mineField.minesGenerated()) mineField.generateMines();
-
-        std::cout << mineField;
     }
+
+    // print out final state of field
+    std::cout << mineField;
 
     // Game is over, get the game status and print out message depending on it
     switch (mineField.getGameStatus()) {
@@ -66,7 +68,7 @@ void GameManager::getCommand() {
 
     // get input from user until valid
     while (!valid) {
-        input = Helpers::getStringFromUser("Set/unset mines marks or claim a cell as free");
+        input = Helpers::getStringFromUser("Set/unset mine marks or claim a cell as free");
 
         // split input, on space, from user into a vector
         std::vector<std::string> stringSplit{Helpers::split(input, ' ')};
