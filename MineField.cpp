@@ -223,6 +223,7 @@ void MineField::free(int x, int y) {
         return;
     }
 
+    point->setVal("/");
     // generate mines if they haven't been already
     if (mines.empty()) generateMines();
 
