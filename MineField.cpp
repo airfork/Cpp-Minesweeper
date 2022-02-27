@@ -10,6 +10,7 @@
 #include "Position.h"
 #include <iostream>
 #include <random>
+#include <algorithm>
 
 
 // Constructor for the minefield
